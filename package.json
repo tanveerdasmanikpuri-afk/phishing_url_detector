@@ -1,0 +1,22 @@
+{
+  "name": "phishing-url-detector",
+  "version": "1.0.0",
+  "description": "Client-side phishing URL heuristic detector with Levenshtein typosquatting analysis",
+  "main": "app.js",
+  "scripts": {
+    "start": "python launch.py",
+    "launch": "python launch.py",
+    "open": "cmd /c start index.html",
+    "test": "python test_suite.py"
+  },
+  "keywords": [
+    "phishing",
+    "security",
+    "url-detector",
+    "heuristics",
+    "levenshtein",
+    "typosquatting"
+  ],
+  "author": "",
+  "license": "MIT"
+}

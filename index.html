@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phishing URL Detector — Heuristic & Typosquatting Inspector</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-wrapper">
+        <!-- App Header -->
+        <header class="header">
+            <div class="logo-badge">
+                <span class="pulse-dot"></span>
+                <span>Zero-Network Heuristic Scanner</span>
+            </div>
+            <h1 class="title">Phishing URL Detector</h1>
+            <p class="subtitle">Real-time client-side heuristic inspection with Levenshtein typosquat detection, lexical feature extraction, and risk verdict grading.</p>
+        </header>
+
+        <!-- Input Card -->
+        <main class="card input-section">
+            <div class="input-group">
+                <input 
+                    type="text" 
+                    id="url-input" 
+                    class="url-input-box" 
+                    placeholder="Enter URL to inspect (e.g. paypa1-secure.tk/login or https://google.com)" 
+                    autocomplete="off"
+                    spellcheck="false"
+                >
+                <button id="analyze-btn" class="btn btn-primary">Scan URL</button>
+                <button id="clear-btn" class="btn btn-secondary">Clear</button>
+            </div>
+
+            <!-- Quick Samples Bar -->
+            <div class="samples-bar">
+                <span class="samples-label">Quick Test Presets:</span>
+                <button class="sample-btn" data-url="https://www.google.com">Google (Safe)</button>
+                <button class="sample-btn" data-url="http://paypa1-secure-service.tk/login/verify">PayPal Typosquat</button>
+                <button class="sample-btn" data-url="http://192.168.1.15/account/update">Raw IP Host</button>
+                <button class="sample-btn" data-url="https://bit.ly/3xY9ZwQ">bit.ly Shortener</button>
+                <button class="sample-btn" data-url="https://xn--pple-43d.com/signin">Punycode Attack</button>
+                <button class="sample-btn" data-url="https://google.com@phish-login-portal.xyz/secure">@ Obfuscation</button>
+                <button class="sample-btn" data-url="http://my-secure-login-update-service.com/auth">Multiple Hyphens</button>
+            </div>
+
+            <!-- Error Box (Hidden by default) -->
+            <div id="error-alert" class="error-box hidden" role="alert">
+                <span class="error-icon">!</span>
+                <span id="error-msg">Not a valid URL. Please check the format.</span>
+            </div>
+        </main>
+
+        <!-- Analysis Results Card (Hidden by default until inspected) -->
+        <section id="results-container" class="card results-section hidden">
+            <!-- Verdict and Score Overview -->
+            <div class="verdict-header">
+                <div class="verdict-info">
+                    <div class="verdict-title-wrap">
+                        <div id="verdict-stamp" class="verdict-stamp verdict-safe">LOW RISK</div>
+                    </div>
+                    <p id="verdict-desc" class="verdict-desc">Standard URL structure. No obvious phishing indicators detected.</p>
+                </div>
+
+                <div class="score-badge">
+                    <div class="score-num-wrap">
+                        <span id="score-number" class="score-num">0</span>
+                        <span class="score-max">/100</span>
+                    </div>
+                    <span class="score-label">Risk Score</span>
+                </div>
+            </div>
+
+            <!-- Animated Score Bar -->
+            <div class="score-progress-wrap">
+                <div class="progress-labels">
+                    <span>Low Risk (0 - 19)</span>
+                    <span>Suspicious (20 - 49)</span>
+                    <span>High Risk (50 - 100)</span>
+                </div>
+                <div class="score-bar-track">
+                    <div id="score-bar-fill" class="score-bar-fill fill-safe"></div>
+                </div>
+            </div>
+
+            <!-- Parsed URL Structural Components -->
+            <div class="breakdown-box">
+                <span class="breakdown-title">Extracted Components</span>
+                <div class="chips-row">
+                    <div class="chip-item">
+                        <span class="chip-label">Protocol:</span>
+                        <span id="chip-protocol" class="chip-value">https:</span>
+                    </div>
+                    <div class="chip-item">
+                        <span class="chip-label">Host:</span>
+                        <span id="chip-host" class="chip-value">google.com</span>
+                    </div>
+                    <div class="chip-item">
+                        <span class="chip-label">Domain Core:</span>
+                        <span id="chip-core" class="chip-value">google</span>
+                    </div>
+                    <div class="chip-item">
+                        <span class="chip-label">TLD:</span>
+                        <span id="chip-tld" class="chip-value">.com</span>
+                    </div>
+                    <div class="chip-item">
+                        <span class="chip-label">Length:</span>
+                        <span id="chip-length" class="chip-value">18 chars</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Findings List -->
+            <div class="findings-section">
+                <h3 class="section-heading">Heuristic Inspection Findings</h3>
+                <ul id="findings-list" class="findings-list">
+                    <!-- Populated dynamically via app.js -->
+                </ul>
+            </div>
+        </section>
+
+        <!-- Privacy & Security Guarantee Footer -->
+        <footer class="footer-privacy">
+            <span class="shield-icon">&#x2714;</span>
+            <span>100% Client-Side Inspection. Zero network calls, zero tracking. Nothing you type ever leaves your browser.</span>
+        </footer>
+    </div>
+
+    <!-- Application Script -->
+    <script src="app.js"></script>
+</body>
+</html>

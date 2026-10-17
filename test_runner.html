@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>JS Browser Test Runner</title></head>
+<body>
+<div id="results">Running tests...</div>
+<!-- Load UI structure in invisible div so DOM elements exist if needed -->
+<div style="display:none">
+    <input id="url-input">
+    <button id="analyze-btn"></button>
+    <button id="clear-btn"></button>
+    <div id="error-alert"></div>
+    <span id="error-msg"></span>
+    <div id="results-container"></div>
+    <div id="verdict-stamp"></div>
+    <div id="verdict-desc"></div>
+    <span id="score-number"></span>
+    <div id="score-bar-fill"></div>
+    <ul id="findings-list"></ul>
+    <span id="chip-protocol"></span>
+    <span id="chip-host"></span>
+    <span id="chip-core"></span>
+    <span id="chip-tld"></span>
+    <span id="chip-length"></span>
+</div>
+<script src="app.js"></script>
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+    const logs = [];
+    function assert(cond, name) {
+        if (cond) {
+            logs.push('[BROWSER_PASS] ' + name);
+        } else {
+            logs.push('[BROWSER_FAIL] ' + name);
+        }
+    }
+
+    // 1. Levenshtein test
+    assert(levenshteinDistance('paypa1', 'paypal') === 1, 'Levenshtein: paypa1 -> paypal is 1');
+    assert(levenshteinDistance('g00gle', 'google') === 2, 'Levenshtein: g00gle -> google is 2');
+    assert(levenshteinDistance('apple', 'apple') === 0, 'Levenshtein: identical is 0');
+
+    // 2. Safe URL
+    const safe = inspectUrl('https://google.com');
+    assert(safe.verdict === 'LOW RISK' && safe.score === 0, 'google.com is LOW RISK (0 pts)');
+
+    // 3. Typosquat
+    const typo = inspectUrl('http://paypa1-security.tk/login/verify');
+    assert(typo.verdict === 'HIGH RISK' && typo.score >= 50, 'paypa1-security.tk is HIGH RISK (>=50 pts)');
+    assert(typo.findings.some(f => f.name === 'Typosquatting Detected'), 'Typosquat flag detected');
+
+    // 4. Raw IP
+    const ip = inspectUrl('http://192.168.1.1/login');
+    assert(ip.findings.some(f => f.name === 'Raw IP Host'), 'Raw IP host detected');
+
+    // 5. @ Symbol
+    const at = inspectUrl('https://safe.com@evil.com');
+    assert(at.findings.some(f => f.name === '@ Symbol Obfuscation'), '@ symbol detected');
+
+    // 6. Punycode
+    const puny = inspectUrl('https://xn--pple-43d.com');
+    assert(puny.findings.some(f => f.name === 'Punycode Homograph'), 'Punycode detected');
+
+    // 7. Risky TLD
+    const tld = inspectUrl('https://something.tk');
+    assert(tld.findings.some(f => f.name === 'High-Abuse TLD'), 'Risky TLD detected');
+
+    // 8. Keywords
+    const kw = inspectUrl('https://test.com/login/verify/update');
+    assert(kw.findings.some(f => f.name === 'Multiple Phishing Keywords'), 'Keyword stacking detected');
+
+    // 9. Shortener
+    const sh = inspectUrl('https://bit.ly/12345');
+    assert(sh.findings.some(f => f.name === 'URL Shortening Service'), 'Shortener detected');
+
+    // 10. Excess Subdomains
+    const sub = inspectUrl('https://a.b.c.target.com');
+    assert(sub.findings.some(f => f.name === 'Excessive Subdomains'), 'Excess subdomains detected');
+
+    // 11. Multiple Hyphens
+    const hy = inspectUrl('https://my-secure-login.com');
+    assert(hy.findings.some(f => f.name === 'Multiple Hyphens in Host'), 'Multiple hyphens detected');
+
+    // 12. No HTTPS
+    const noHttps = inspectUrl('http://target.com');
+    assert(noHttps.findings.some(f => f.name === 'Unencrypted Connection (No HTTPS)'), 'No HTTPS detected');
+
+    // 13. Long URL
+    const longU = inspectUrl('https://target.com/' + 'x'.repeat(70));
+    assert(longU.findings.some(f => f.name === 'Excessive URL Length'), 'Long URL detected');
+
+    // 14. Special chars
+    const sp = inspectUrl('https://target.com/?q=%20&$price=!*');
+    assert(sp.findings.some(f => f.name === 'Special Characters Obfuscation'), 'Special characters detected');
+
+    // 15. Clean URL note
+    const clean = inspectUrl('https://example.com');
+    assert(clean.findings.some(f => f.tag === 'CLEAR'), 'Clean site includes CLEAR note');
+
+    // 16. Invalid URL
+    const inv = inspectUrl('://bad url');
+    assert(inv.error !== undefined, 'Invalid URL correctly returns error');
+
+    document.getElementById('results').innerHTML = '<pre>' + logs.join('\n') + '</pre>';
+});
+</script>
+</body>
+</html>
